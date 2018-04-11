@@ -361,17 +361,17 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
       }
 
       /* If pbuf is to be allocated in RAM, allocate memory for it. */
-      //p = (struct pbuf*)mem_malloc(alloc_len);
+      p = (struct pbuf*)mem_malloc(alloc_len);
     }
 
     if (p == NULL) {
       return NULL;
     }
     /* Set up internal structure of the pbuf. */
-    /*p->payload = LWIP_MEM_ALIGN((void *)((u8_t *)p + SIZEOF_STRUCT_PBUF + offset));
+    p->payload = LWIP_MEM_ALIGN((void *)((u8_t *)p + SIZEOF_STRUCT_PBUF + offset));
     p->len = p->tot_len = length;
     p->next = NULL;
-    p->type = type;*/
+    p->type = type;
 
     //LWIP_ASSERT("pbuf_alloc: pbuf->payload properly aligned", ((mem_ptr_t)p->payload % MEM_ALIGNMENT) == 0);
     break;
@@ -382,6 +382,13 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
     /* only allocate memory for the pbuf structure */
     p = (struct pbuf *)memp_malloc(MEMP_PBUF);
     if (p == NULL) {
+      if (type == PBUF_ROM) {
+        LWIP_ASSERT("pbuf_alloc: Could not allocate MEMP_PBUF for PBUF_ROM \n", 0);
+      } else if (type == PBUF_REF) {
+        LWIP_ASSERT("pbuf_alloc: Could not allocate MEMP_PBUF for PBUF_REF \n", 0);
+      } else if (type == PBUF_RAM) {
+        LWIP_ASSERT("pbuf_alloc: Could not allocate MEMP_PBUF for PBUF_RAM \n", 0);
+      }
       LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_LEVEL_SERIOUS,
                   ("pbuf_alloc: Could not allocate MEMP_PBUF for PBUF_%s.\n",
                   (type == PBUF_ROM) ? "ROM" : "REF"));
@@ -399,10 +406,10 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
   }
 
   /* set reference count */
-  //p->ref = 1;
+  p->ref = 1;
   /* set flags */
-  //p->flags = 0;
-  //LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_alloc(length=%"U16_F") == %p\n", length, (void *)p));
+  p->flags = 0;
+  LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_TRACE, ("pbuf_alloc(length=%"U16_F") == %p\n", length, (void *)p));
   
   return p;
 }
@@ -722,7 +729,7 @@ pbuf_free(struct pbuf *p)
   u8_t count;
 
   if (p == NULL) {
-    LWIP_ASSERT("p != NULL", p != NULL);
+    LWIP_ASSERT("pbuf_free: p != NULL", p != NULL);
     /* if assertions are disabled, proceed with debug output */
     LWIP_DEBUGF(PBUF_DEBUG | LWIP_DBG_LEVEL_SERIOUS,
       ("pbuf_free(p == NULL) was called.\n"));

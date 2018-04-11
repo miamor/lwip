@@ -134,7 +134,7 @@ extern const ip_addr_t ip_addr_any_type;
   ip6_addr_copy(*ip_2_ip6(&(dest)), src); IP_SET_TYPE_VAL(dest, IPADDR_TYPE_V6); }while(0)
 /** @ingroup ip4addr */
 #define ip_addr_copy_from_ip4(dest, src)      do{ \
-  ip4_addr_copy(*ip_2_ip4(&(dest)), *ip_2_ip4(&(src))); IP_SET_TYPE_VAL(dest, IPADDR_TYPE_V4); }while(0)
+  ip4_addr_copy(*ip_2_ip4(&(dest)), src); IP_SET_TYPE_VAL(dest, IPADDR_TYPE_V4); }while(0)
 /** @ingroup ip4addr */
 #define ip_addr_set_ip4_u32(ipaddr, val)  do{if(ipaddr){ip4_addr_set_u32(ip_2_ip4(ipaddr), val); \
   IP_SET_TYPE(ipaddr, IPADDR_TYPE_V4); }}while(0)
